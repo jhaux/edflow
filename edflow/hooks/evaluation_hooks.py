@@ -225,6 +225,7 @@ class RestorePytorchModelHook(Hook):
     def before_epoch(self, ep):
         checkpoint = get_latest_checkpoint(self.root, self.fcond)
         self(checkpoint)
+        self.current_checkpoint = checkpoint
 
     def __call__(self, checkpoint):
         self.model.load_state_dict(torch.load(checkpoint))
