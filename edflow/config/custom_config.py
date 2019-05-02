@@ -68,7 +68,8 @@ class Config(dict):
         savepath = os.path.join(P.config, savename)
 
         with open(savepath, "w") as cfile:
-            cfile.write(yaml.dump(self, default_flow_style=False))
+            store_d = {k: v for k, v in self.items()}
+            cfile.write(yaml.dump(store_d, default_flow_style=False))
 
         self.logger.info("Stored config at {}".format(savepath))
 
