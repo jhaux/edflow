@@ -66,7 +66,12 @@ def plot_batch(X, out_path):
 
     n_channels = X.shape[3]
     if n_channels > 4:
-        X = X[:, :, :, :3]
+        X = np.mean(X, axis=-1, keepdims=True)
+        X -= X.min()
+        X /= X.max()
+        X *= 2.
+        X -= 1
+        # X = X[:, :, :, :3]
     if n_channels == 1:
         X = np.tile(X, [1, 1, 1, 3])
     rc = math.sqrt(X.shape[0])
