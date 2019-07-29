@@ -10,4 +10,4 @@ batch_size: 1
 
 start_temperature: 50000
 stop_temperature: 0
-anneal_type: 'exp'
+anneal_type: "exp"
