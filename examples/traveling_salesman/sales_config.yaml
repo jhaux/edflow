@@ -1,0 +1,13 @@
+model: traveling_salesman.salesman.TravelingSalesman
+iterator: traveling_salesman.trainer.TravelingTrainer
+dataset: traveling_salesman.temperature.SalesData
+
+num_cities: 20
+random_seed: 42
+
+num_steps: 10000
+batch_size: 1
+
+start_temperature: 50000
+stop_temperature: 0
+anneal_type: 'exp'
