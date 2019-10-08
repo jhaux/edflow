@@ -1,7 +1,6 @@
 from edflow.data.dataset_mixin import DatasetMixin
 from edflow.data.agnostics.subdataset import SubDataset
 from edflow.data.agnostics.concatenated import ExampleConcatenatedDataset
-from edflow.main import get_implementations_from_config
 import numpy as np
 
 
@@ -192,6 +191,7 @@ def getSeqDataset(config):
     :class:`SequenceDataset`
         A Sequence Dataset based on the basedataset.
     """
+    from edflow.main import get_implementations_from_config
 
     ks = "seqdataset"
     base_dset = get_implementations_from_config(config[ks], ["dataset"])["dataset"]
