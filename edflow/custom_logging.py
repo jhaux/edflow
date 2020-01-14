@@ -322,9 +322,9 @@ class TqdmHandler(logging.StreamHandler):
     """A logging handler compatible with tqdm progress bars.
     """
 
-    def __init__(self, pos=4):
+    def __init__(self):
         logging.StreamHandler.__init__(self)
-        self.tqdm = tqdm(position=pos)
+        self.tqdm = tqdm()
 
     def emit(self, record):
         # check if stderr and stdout are two different ptys.
@@ -421,25 +421,67 @@ class log(object):
         cls.get_logger("log").debug("Log level set to {}".format(level))
 
     @staticmethod
-    def _create_logger(name, out_dir, pos=4, level=logging.INFO):
+    def _create_logger(name, out_dir, level=logging.INFO):
         """Creates a logger with tqdm- and file-handler."""
         # init logging
         logger = logging.getLogger(name)
         logger.setLevel(level)
 
+        logger.copyline = lambda msg: logger.log(22, msg)
+
         if not len(logger.handlers) > 0:
-            ch = TqdmHandler(pos)
+            ch = TqdmHandler()
             fh = logging.FileHandler(filename=os.path.join(out_dir, "log.txt"))
 
             fmt_string = "[%(levelname)s] [%(name)s]: %(message)s"
             formatter = logging.Formatter(fmt_string)
-            fh.setFormatter(formatter)
-            ch.setFormatter(formatter)
+            fh.setFormatter(CopyLineFormatter(False))
+            ch.setFormatter(CopyLineFormatter(True))
 
             logger.addHandler(ch)
             logger.addHandler(fh)
 
         return logger
+
+
+class CopyLineFormatter(logging.Formatter):
+    def __init__(self, use_color, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.BLACK, self.RED, self.GREEN, self.YELLOW = range(4)
+        self.BLUE, self.MAGENTA, self.CYAN, self.WHITE = range(4, 8)
+
+        # The background is set with 40 plus the number of the color, and the
+        # foreground with 30
+
+        # These are the sequences need to get colored ouput
+        self.RESET_SEQ = "\033[0m"
+        self.COLOR_SEQ = "\033[{}m"
+        self.BOLD_SEQ = "\033[1m"
+
+        if use_color:
+            self._fmt_str = "{color}[{levelname}] [{name}]: {msg}{color_end}"
+        else:
+            self._fmt_str = "[{levelname}] [{name}]: {msg}"
+
+    def format(self, record):
+
+        content = {
+            "color": "",
+            "color_end": "",
+            "levelname": record.levelname,
+            "name": record.name,
+            "msg": record.msg,
+        }
+
+        if record.levelno == 22:
+            content["levelname"] = "INFO"
+            content["color"] = self.COLOR_SEQ.format(90 + self.MAGENTA)
+            content["color_end"] = self.RESET_SEQ
+
+        formatted = self._fmt_str.format(**content)
+
+        return formatted
 
 
 def _fix_abseil():
