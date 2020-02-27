@@ -73,7 +73,19 @@ def show_example(dset, idx):
 
 
 def _get_state(config):
-    Dataset = get_obj_from_str(config["dataset"])
+    if "dataset" in config:
+        dset = config["dataset"]
+    else:
+        dset = config["datasets"]
+        if "explore" in config:
+            dset = dset[config["explore"]]
+        else:
+            raise ValueError(
+                "Please specify which dataset to explore by "
+                "passing `--explore <split>` to edexplore or "
+                "specifying it in the config."
+            )
+    Dataset = get_obj_from_str(dset)
     dataset = Dataset(config)
     return dataset
 
